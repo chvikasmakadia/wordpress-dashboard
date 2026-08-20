@@ -7273,10 +7273,22 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
               >
                 {item.iconType === 'custom' ? (
                   item.customUrl ? (
-                    <img 
-                      src={item.customUrl} 
-                      alt="" 
-                      style={{ width: `${iconSize}px`, height: `${iconSize}px`, objectFit: 'contain' }} 
+                    <div 
+                      style={{ 
+                        width: `${iconSize}px`, 
+                        height: `${iconSize}px`, 
+                        backgroundColor: iconCol,
+                        maskImage: `url(${item.customUrl})`,
+                        WebkitMaskImage: `url(${item.customUrl})`,
+                        maskSize: 'contain',
+                        WebkitMaskSize: 'contain',
+                        maskRepeat: 'no-repeat',
+                        WebkitMaskRepeat: 'no-repeat',
+                        maskPosition: 'center',
+                        WebkitMaskPosition: 'center',
+                        display: 'inline-block',
+                        flexShrink: 0
+                      }} 
                     />
                   ) : null
                 ) : (
