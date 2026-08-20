@@ -1169,6 +1169,85 @@ export default function PublicBlockRenderer({ blocks = [], appearance = {}, menu
           );
         }
 
+        // 9b. ICON BOX MARQUEE WIDGET
+        if (block.type === 'icon_box_marquee') {
+          const items = settings.items || [];
+          const speed = parseInt(settings.speed || '30');
+          const direction = settings.direction || 'left';
+          const gap = parseInt(settings.gap !== undefined ? settings.gap : '40');
+          const iconSize = parseInt(settings.iconSize || '20');
+          const fontSize = parseInt(settings.fontSize || '14');
+          const bg = settings.backgroundColor || '#1f2937';
+          const textCol = settings.textColor || '#ffffff';
+          const iconCol = settings.iconColor || '#6366f1';
+          const pauseOnHover = settings.pauseOnHover !== false;
+
+          const marqueeList = [...items, ...items];
+          const animName = `marquee-${block.id}`;
+          const keyframes = direction === 'left' 
+            ? `@keyframes ${animName} { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }`
+            : `@keyframes ${animName} { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }`;
+
+          return (
+            <React.Fragment key={block.id}>
+              {renderResponsiveStyles(block.id, settings.customStyle, block.type)}
+              <div 
+                style={{ 
+                  width: '100%', 
+                  overflow: 'hidden', 
+                  background: bg, 
+                  padding: '12px 0', 
+                  position: 'relative', 
+                  ...customBlockStyles 
+                }}
+                className={`rendered-marquee el-${block.id}`}
+              >
+                <style>{`
+                  ${keyframes}
+                  .marquee-track-${block.id} {
+                    display: flex;
+                    width: max-content;
+                    animation: ${animName} ${speed}s linear infinite;
+                  }
+                  ${pauseOnHover ? `.marquee-track-${block.id}:hover { animation-play-state: paused; }` : ''}
+                `}</style>
+                
+                <div className={`marquee-track-${block.id}`}>
+                  {marqueeList.map((item, index) => (
+                    <div 
+                      key={`${item.id}-${index}`} 
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        paddingRight: `${gap}px`,
+                        color: textCol,
+                        fontSize: `${fontSize}px`,
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {item.iconType === 'custom' ? (
+                        item.customUrl ? (
+                          <img 
+                            src={item.customUrl} 
+                            alt="" 
+                            style={{ width: `${iconSize}px`, height: `${iconSize}px`, objectFit: 'contain' }} 
+                          />
+                        ) : null
+                      ) : (
+                        <span style={{ color: iconCol, display: 'flex', alignItems: 'center' }}>
+                          {renderLucideIcon(item.icon || 'Star', { size: iconSize })}
+                        </span>
+                      )}
+                      <span>{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </React.Fragment>
+          );
+        }
+
         // 9. ICON LIST WIDGET
         if (block.type === 'iconlist') {
           const align = settings.align || 'left';

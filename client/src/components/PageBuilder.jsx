@@ -582,6 +582,7 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
   const [activeColStyleIdx, setActiveColStyleIdx] = useState(null);
   const [activeSlides, setActiveSlides] = useState({}); // { [sliderId]: index }
   const [activeSlideStyleId, setActiveSlideStyleId] = useState(null); // Tracks which slide background styling is expanded
+  const [activeMarqueeItemId, setActiveMarqueeItemId] = useState(null); // Tracks which marquee item has its custom icon upload active
 
   const [clipboardExists, setClipboardExists] = useState(false);
 
@@ -623,6 +624,13 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
       clonedSettings.items = clonedSettings.items.map((item, iIdx) => ({
         ...item,
         id: `li-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${iIdx}`
+      }));
+    }
+
+    if (block.type === 'icon_box_marquee' && clonedSettings.items) {
+      clonedSettings.items = clonedSettings.items.map((item, iIdx) => ({
+        ...item,
+        id: `m-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${iIdx}`
       }));
     }
 
@@ -1816,6 +1824,22 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
         showButton: true,
         buttonText: 'View Event',
         buttonColor: '#6366f1'
+      },
+      icon_box_marquee: {
+        items: [
+          { id: 'm-1', text: 'Free Worldwide Shipping', iconType: 'lucide', icon: 'Star', customUrl: '' },
+          { id: 'm-2', text: 'Secure Payments via Stripe', iconType: 'lucide', icon: 'Check', customUrl: '' },
+          { id: 'm-3', text: '24/7 Premium Customer Support', iconType: 'lucide', icon: 'Globe', customUrl: '' }
+        ],
+        speed: '30',
+        direction: 'left',
+        pauseOnHover: true,
+        gap: '40',
+        backgroundColor: '#1f2937',
+        textColor: '#ffffff',
+        iconColor: '#6366f1',
+        iconSize: '20',
+        fontSize: '14'
       }
     };
 
@@ -1987,6 +2011,22 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
         showButton: true,
         buttonText: 'View Event',
         buttonColor: '#6366f1'
+      },
+      icon_box_marquee: {
+        items: [
+          { id: 'm-1', text: 'Free Worldwide Shipping', iconType: 'lucide', icon: 'Star', customUrl: '' },
+          { id: 'm-2', text: 'Secure Payments via Stripe', iconType: 'lucide', icon: 'Check', customUrl: '' },
+          { id: 'm-3', text: '24/7 Premium Customer Support', iconType: 'lucide', icon: 'Globe', customUrl: '' }
+        ],
+        speed: '30',
+        direction: 'left',
+        pauseOnHover: true,
+        gap: '40',
+        backgroundColor: '#1f2937',
+        textColor: '#ffffff',
+        iconColor: '#6366f1',
+        iconSize: '20',
+        fontSize: '14'
       }
     };
 
@@ -2646,7 +2686,8 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
     { type: 'carousel', name: 'Image Box Carousel', icon: Sliders, desc: 'Sliding gallery of custom images with overlay text' },
     { type: 'image_only_carousel', name: 'Image Carousel', icon: Sliders, desc: 'Sliding gallery of custom images' },
     { type: 'loop_grid', name: 'Loop Grid', icon: Grid, desc: 'Grid layout of queried posts' },
-    { type: 'loop_carousel', name: 'Loop Carousel', icon: RefreshCw, desc: 'Carousel layout of queried posts' }
+    { type: 'loop_carousel', name: 'Loop Carousel', icon: RefreshCw, desc: 'Carousel layout of queried posts' },
+    { type: 'icon_box_marquee', name: 'Icon Box Marquee', icon: RefreshCw, desc: 'Scrolling marquee of custom icon boxes' }
   ];
 
   return createPortal(
@@ -5822,6 +5863,267 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
                 </div>
               )}
 
+              {/* ICON BOX MARQUEE SETTINGS */}
+              {activeBlock.type === 'icon_box_marquee' && (
+                <div className="settings-fields">
+                  {/* Items list */}
+                  <div className="form-group" style={{ marginBottom: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label className="form-label" style={{ margin: '0', fontWeight: 'bold' }}>Marquee Items</label>
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: '2px 8px', fontSize: '0.65rem' }}
+                        onClick={() => {
+                          const currentItems = activeBlock.settings.items || [];
+                          const updated = [...currentItems, { id: `m-${Date.now()}`, text: 'New Highlight', iconType: 'lucide', icon: 'Star', customUrl: '' }];
+                          updateBlockSettings(activeBlock.id, { items: updated });
+                        }}
+                      >
+                        <Plus size={10} style={{ marginRight: '2px' }} />
+                        <span>Add Item</span>
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto', paddingRight: '4px' }}>
+                      {(activeBlock.settings.items || []).map((item, idx) => (
+                        <div key={item.id} style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '10px', background: 'rgba(0,0,0,0.15)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <select
+                              value={item.iconType || 'lucide'}
+                              onChange={e => {
+                                const newItems = [...activeBlock.settings.items];
+                                newItems[idx] = { ...item, iconType: e.target.value };
+                                updateBlockSettings(activeBlock.id, { items: newItems });
+                              }}
+                              className="form-control"
+                              style={{ width: '90px', fontSize: '0.75rem', padding: '3px' }}
+                            >
+                              <option value="lucide">Lucide Icon</option>
+                              <option value="custom">SVG / Image</option>
+                            </select>
+
+                            {item.iconType === 'custom' ? (
+                              <div style={{ flex: 1, display: 'flex', gap: '4px' }}>
+                                <input
+                                  type="text"
+                                  placeholder="SVG/Image URL..."
+                                  value={item.customUrl || ''}
+                                  onChange={e => {
+                                    const newItems = [...activeBlock.settings.items];
+                                    newItems[idx] = { ...item, customUrl: e.target.value };
+                                    updateBlockSettings(activeBlock.id, { items: newItems });
+                                  }}
+                                  className="form-control"
+                                  style={{ fontSize: '0.75rem', padding: '3px 6px', flex: 1 }}
+                                />
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary btn-sm"
+                                  style={{ padding: '2px 6px', fontSize: '0.65rem' }}
+                                  onClick={() => {
+                                    setMediaSelectionContext('marquee_icon_select');
+                                    setActiveMarqueeItemId(item.id);
+                                    setMediaModalOpen(true);
+                                  }}
+                                >
+                                  Upload
+                                </button>
+                              </div>
+                            ) : (
+                              <select
+                                value={item.icon || 'Star'}
+                                onChange={e => {
+                                  const newItems = [...activeBlock.settings.items];
+                                  newItems[idx] = { ...item, icon: e.target.value };
+                                  updateBlockSettings(activeBlock.id, { items: newItems });
+                                }}
+                                className="form-control"
+                                style={{ flex: 1, fontSize: '0.75rem', padding: '3px' }}
+                              >
+                                <option value="Star">Star</option>
+                                <option value="Check">Check</option>
+                                <option value="Phone">Phone</option>
+                                <option value="Mail">Mail</option>
+                                <option value="MapPin">Map Pin</option>
+                                <option value="Globe">Globe</option>
+                                <option value="Layers">Layers</option>
+                                <option value="Package">Package</option>
+                                <option value="Heart">Heart</option>
+                                <option value="Smile">Smile</option>
+                                <option value="Shield">Shield</option>
+                                <option value="Activity">Activity</option>
+                                <option value="Info">Info</option>
+                              </select>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = activeBlock.settings.items.filter(x => x.id !== item.id);
+                                updateBlockSettings(activeBlock.id, { items: updated });
+                              }}
+                              style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer' }}
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+
+                          <input
+                            type="text"
+                            placeholder="Text Description..."
+                            value={item.text}
+                            onChange={e => {
+                              const newItems = [...activeBlock.settings.items];
+                              newItems[idx] = { ...item, text: e.target.value };
+                              updateBlockSettings(activeBlock.id, { items: newItems });
+                            }}
+                            className="form-control"
+                            style={{ fontSize: '0.75rem', padding: '4px 8px' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Marquee settings */}
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <label className="form-label" style={{ fontSize: '0.75rem', margin: 0 }}>Scroll Duration / Speed (s): {activeBlock.settings.speed || '30'}s</label>
+                    </div>
+                    <input
+                      type="range"
+                      min="5"
+                      max="120"
+                      className="form-control-range"
+                      value={activeBlock.settings.speed || '30'}
+                      onChange={e => updateBlockSettings(activeBlock.id, { speed: e.target.value })}
+                      style={{ width: '100%', accentColor: 'var(--color-primary)' }}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Scroll Direction</label>
+                    <select
+                      className="form-control"
+                      value={activeBlock.settings.direction || 'left'}
+                      onChange={e => updateBlockSettings(activeBlock.id, { direction: e.target.value })}
+                      style={{ fontSize: '0.75rem' }}
+                    >
+                      <option value="left">Left to Right (Scroll Left)</option>
+                      <option value="right">Right to Left (Scroll Right)</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={activeBlock.settings.pauseOnHover !== false}
+                        onChange={e => updateBlockSettings(activeBlock.id, { pauseOnHover: e.target.checked })}
+                        style={{ width: '16px', height: '16px', accentColor: 'var(--color-primary)' }}
+                      />
+                      <span style={{ fontSize: '0.85rem' }}>Pause On Hover</span>
+                    </label>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <label className="form-label" style={{ fontSize: '0.75rem', margin: 0 }}>Spacing / Item Gap: {activeBlock.settings.gap !== undefined ? activeBlock.settings.gap : '40'}px</label>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="150"
+                      className="form-control-range"
+                      value={activeBlock.settings.gap !== undefined ? activeBlock.settings.gap : '40'}
+                      onChange={e => updateBlockSettings(activeBlock.id, { gap: e.target.value })}
+                      style={{ width: '100%', accentColor: 'var(--color-primary)' }}
+                    />
+                  </div>
+
+                  {/* Colors and styling */}
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Background Color</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="text"
+                        className="form-control hex-input"
+                        value={activeBlock.settings.backgroundColor || '#1f2937'}
+                        onChange={e => updateBlockSettings(activeBlock.id, { backgroundColor: e.target.value })}
+                        style={{ width: '100px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#fff', textAlign: 'center' }}
+                      />
+                      <input
+                        type="color"
+                        value={activeBlock.settings.backgroundColor && activeBlock.settings.backgroundColor.startsWith('#') ? activeBlock.settings.backgroundColor : '#1f2937'}
+                        onChange={e => updateBlockSettings(activeBlock.id, { backgroundColor: e.target.value })}
+                        style={{ width: '28px', border: 'none', padding: '0', background: 'none', cursor: 'pointer' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Text Color</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="text"
+                        className="form-control hex-input"
+                        value={activeBlock.settings.textColor || '#ffffff'}
+                        onChange={e => updateBlockSettings(activeBlock.id, { textColor: e.target.value })}
+                        style={{ width: '100px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#fff', textAlign: 'center' }}
+                      />
+                      <input
+                        type="color"
+                        value={activeBlock.settings.textColor && activeBlock.settings.textColor.startsWith('#') ? activeBlock.settings.textColor : '#ffffff'}
+                        onChange={e => updateBlockSettings(activeBlock.id, { textColor: e.target.value })}
+                        style={{ width: '28px', border: 'none', padding: '0', background: 'none', cursor: 'pointer' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Icon Color</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="text"
+                        className="form-control hex-input"
+                        value={activeBlock.settings.iconColor || '#6366f1'}
+                        onChange={e => updateBlockSettings(activeBlock.id, { iconColor: e.target.value })}
+                        style={{ width: '100px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#fff', textAlign: 'center' }}
+                      />
+                      <input
+                        type="color"
+                        value={activeBlock.settings.iconColor && activeBlock.settings.iconColor.startsWith('#') ? activeBlock.settings.iconColor : '#6366f1'}
+                        onChange={e => updateBlockSettings(activeBlock.id, { iconColor: e.target.value })}
+                        style={{ width: '28px', border: 'none', padding: '0', background: 'none', cursor: 'pointer' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Icon Size (px)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={activeBlock.settings.iconSize || '20'}
+                      onChange={e => updateBlockSettings(activeBlock.id, { iconSize: e.target.value })}
+                      style={{ fontSize: '0.75rem' }}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Text Font Size (px)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={activeBlock.settings.fontSize || '14'}
+                      onChange={e => updateBlockSettings(activeBlock.id, { fontSize: e.target.value })}
+                      style={{ fontSize: '0.75rem' }}
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* IMAGE SETTINGS */}
               {activeBlock.type === 'image' && (
                 <div className="settings-fields">
@@ -6078,6 +6380,15 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
                   { id: `img-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`, url: asset.url, caption: asset.name || '' }
                 ]
               });
+            } else if (mediaSelectionContext === 'marquee_icon_select') {
+              const currentItems = activeBlock?.settings?.items || [];
+              const updated = currentItems.map(item => {
+                if (item.id === activeMarqueeItemId) {
+                  return { ...item, customUrl: asset.url };
+                }
+                return item;
+              });
+              updateBlockSettings(activeBlock.id, { items: updated });
             } else {
               updateBlockSettings(activeBlock.id, { url: asset.url });
             }
@@ -6910,6 +7221,72 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
               ))}
             </div>
           )}
+        </div>
+      );
+    }
+
+    else if (block.type === 'icon_box_marquee') {
+      const items = settings.items || [];
+      const speed = parseInt(settings.speed || '30');
+      const direction = settings.direction || 'left';
+      const gap = parseInt(settings.gap !== undefined ? settings.gap : '40');
+      const iconSize = parseInt(settings.iconSize || '20');
+      const fontSize = parseInt(settings.fontSize || '14');
+      const bg = settings.backgroundColor || '#1f2937';
+      const textCol = settings.textColor || '#ffffff';
+      const iconCol = settings.iconColor || '#6366f1';
+      const pauseOnHover = settings.pauseOnHover !== false;
+      const customMarqueeStyles = getElementorStyles(settings.customStyle || {}, previewDevice);
+
+      const marqueeList = [...items, ...items];
+      const animName = `marquee-${block.id}`;
+      const keyframes = direction === 'left' 
+        ? `@keyframes ${animName} { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }`
+        : `@keyframes ${animName} { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }`;
+
+      previewElement = (
+        <div style={{ width: '100%', overflow: 'hidden', background: bg, padding: '12px 0', position: 'relative', ...customMarqueeStyles }}>
+          <style>{`
+            ${keyframes}
+            .marquee-track-${block.id} {
+              display: flex;
+              width: max-content;
+              animation: ${animName} ${speed}s linear infinite;
+            }
+            ${pauseOnHover ? `.marquee-track-${block.id}:hover { animation-play-state: paused; }` : ''}
+          `}</style>
+          
+          <div className={`marquee-track-${block.id}`}>
+            {marqueeList.map((item, index) => (
+              <div 
+                key={`${item.id}-${index}`} 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  paddingRight: `${gap}px`,
+                  color: textCol,
+                  fontSize: `${fontSize}px`,
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {item.iconType === 'custom' ? (
+                  item.customUrl ? (
+                    <img 
+                      src={item.customUrl} 
+                      alt="" 
+                      style={{ width: `${iconSize}px`, height: `${iconSize}px`, objectFit: 'contain' }} 
+                    />
+                  ) : null
+                ) : (
+                  <span style={{ color: iconCol, display: 'flex', alignItems: 'center' }}>
+                    {renderLucideIcon(item.icon || 'Star', { size: iconSize })}
+                  </span>
+                )}
+                <span>{item.text}</span>
+              </div>
+            ))}
+          </div>
         </div>
       );
     }
