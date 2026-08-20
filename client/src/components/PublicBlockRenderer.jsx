@@ -1177,7 +1177,7 @@ export default function PublicBlockRenderer({ blocks = [], appearance = {}, menu
           const gap = parseInt(settings.gap !== undefined ? settings.gap : '40');
           const iconSize = parseInt(settings.iconSize || '20');
           const fontSize = parseInt(settings.fontSize || '14');
-          const bg = settings.backgroundColor || '#1f2937';
+          const bg = settings.backgroundColor || 'transparent';
           const textCol = settings.textColor || '#ffffff';
           const iconCol = settings.iconColor || '#6366f1';
           const pauseOnHover = settings.pauseOnHover !== false;

@@ -1835,7 +1835,7 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
         direction: 'left',
         pauseOnHover: true,
         gap: '40',
-        backgroundColor: '#1f2937',
+        backgroundColor: 'transparent',
         textColor: '#ffffff',
         iconColor: '#6366f1',
         iconSize: '20',
@@ -2022,7 +2022,7 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
         direction: 'left',
         pauseOnHover: true,
         gap: '40',
-        backgroundColor: '#1f2937',
+        backgroundColor: 'transparent',
         textColor: '#ffffff',
         iconColor: '#6366f1',
         iconSize: '20',
@@ -6049,7 +6049,8 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
                       <input
                         type="text"
                         className="form-control hex-input"
-                        value={activeBlock.settings.backgroundColor || '#1f2937'}
+                        placeholder="transparent"
+                        value={activeBlock.settings.backgroundColor !== undefined ? activeBlock.settings.backgroundColor : 'transparent'}
                         onChange={e => updateBlockSettings(activeBlock.id, { backgroundColor: e.target.value })}
                         style={{ width: '100px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#fff', textAlign: 'center' }}
                       />
@@ -7232,7 +7233,7 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
       const gap = parseInt(settings.gap !== undefined ? settings.gap : '40');
       const iconSize = parseInt(settings.iconSize || '20');
       const fontSize = parseInt(settings.fontSize || '14');
-      const bg = settings.backgroundColor || '#1f2937';
+      const bg = settings.backgroundColor || 'transparent';
       const textCol = settings.textColor || '#ffffff';
       const iconCol = settings.iconColor || '#6366f1';
       const pauseOnHover = settings.pauseOnHover !== false;
