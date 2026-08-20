@@ -6122,6 +6122,33 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
                       style={{ fontSize: '0.75rem' }}
                     />
                   </div>
+
+                  <div className="form-group" style={{ marginBottom: '12px' }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Font Family</label>
+                    <select
+                      className="form-control"
+                      value={activeBlock.settings.fontFamily || 'inherit'}
+                      onChange={e => updateBlockSettings(activeBlock.id, { fontFamily: e.target.value })}
+                      style={{ fontSize: '0.75rem', padding: '4px 6px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', color: '#fff' }}
+                    >
+                      <option value="inherit">Inherit (Default)</option>
+                      <option value="system-ui, -apple-system, sans-serif">System Sans-Serif</option>
+                      <option value="'Courier New', monospace">Courier Prime Monospace</option>
+                      {(appearance?.custom_fonts || []).map(font => {
+                        const displayName = font.split(',')[0].replace(/['"]/g, '');
+                        return (
+                          <option key={font} value={font}>{displayName}</option>
+                        );
+                      })}
+                      {(appearance?.uploaded_fonts || []).length > 0 && (
+                        <optgroup label="Uploaded Custom Fonts">
+                          {Array.from(new Set((appearance.uploaded_fonts).map(f => f.family))).map(familyName => (
+                            <option key={familyName} value={`'${familyName}', sans-serif`}>{familyName}</option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                  </div>
                 </div>
               )}
 
@@ -7268,6 +7295,7 @@ export default function PageBuilder({ isOpen, title = 'Layout Design', onChangeT
                   paddingRight: `${gap}px`,
                   color: textCol,
                   fontSize: `${fontSize}px`,
+                  fontFamily: settings.fontFamily || 'inherit',
                   whiteSpace: 'nowrap'
                 }}
               >

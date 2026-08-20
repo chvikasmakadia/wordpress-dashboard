@@ -1223,6 +1223,7 @@ export default function PublicBlockRenderer({ blocks = [], appearance = {}, menu
                         paddingRight: `${gap}px`,
                         color: textCol,
                         fontSize: `${fontSize}px`,
+                        fontFamily: settings.fontFamily || 'inherit',
                         whiteSpace: 'nowrap'
                       }}
                     >
